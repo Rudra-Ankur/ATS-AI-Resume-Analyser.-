@@ -1,0 +1,49 @@
+CREATE DATABASE IF NOT EXISTS resume_analyser;
+USE resume_analyser;
+
+CREATE TABLE IF NOT EXISTS users (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(120),
+  email VARCHAR(160) UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS resumes (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NULL,
+  file_name VARCHAR(255),
+  raw_text MEDIUMTEXT,
+  uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS job_descriptions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(200),
+  text MEDIUMTEXT
+);
+
+CREATE TABLE IF NOT EXISTS analyses (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  resume_id INT NOT NULL,
+  job_id INT NULL,
+  ats_score DECIMAL(5,2),
+  match_score DECIMAL(5,2) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (resume_id) REFERENCES resumes(id) ON DELETE CASCADE,
+  FOREIGN KEY (job_id) REFERENCES job_descriptions(id) ON DELETE SET NULL,
+  INDEX idx_resume (resume_id)
+);
+
+CREATE TABLE IF NOT EXISTS skills (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(80) UNIQUE,
+  category VARCHAR(40)
+);
+
+CREATE TABLE IF NOT EXISTS resume_skills (
+  resume_id INT NOT NULL,
+  skill_id INT NOT NULL,
+  PRIMARY KEY (resume_id, skill_id),
+  FOREIGN KEY (resume_id) REFERENCES resumes(id) ON DELETE CASCADE,
+  FOREIGN KEY (skill_id) REFERENCES skills(id) ON DELETE CASCADE
+);
